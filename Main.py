@@ -47,7 +47,6 @@ def Lorenz(xyz, *, s, r, b, dt, num_steps):
     ax.set_title(f"Lorenz Attractor (s={s}, r={r}, b={b})")
     plt.show()
 
-
 def Rossler(xyz, *, a, b, c, dt, num_steps):
     """
     Simulate and plot the Rossler attractor.
@@ -98,7 +97,7 @@ def Rossler(xyz, *, a, b, c, dt, num_steps):
 #Lorenz example from wiki - parameters s=10, r=28, b=2.667
 #Lorenz([0., 1., 1.05], s=10, r=28, b=2.667, dt=0.01, num_steps=10000)
 
-#Rossler example from wiki - paparameters a=0.2, b=0.2, c=5.7
+#Rossler example from wiki - parameters a=0.2, b=0.2, c=5.7
 #Rossler([0., 1., 1.05], a=0.2, b=0.2, c=5.7, dt=0.01, num_steps=10000)
 Rossler([0., 1., 1.05], a=0.1, b=0.1, c=14, dt=0.01, num_steps=10000)
 
