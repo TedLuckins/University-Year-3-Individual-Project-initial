@@ -1,26 +1,51 @@
 import numpy as np
 from matplotlib import (pyplot as plt)
 
-def Lorenz(xyz, *, s, r, b, dt, num_steps):
 
+def Euler_Method(Deriv_Func, Initial_Conditions, num_steps, dt, *params):
+    """
+
+    :param Deriv_Func: function
+            The function the computes the deriviatives
+    :param Intital_Conditions: array-like, shape (3,)
+            Initial values of the system (x, y, z)
+    :param num_steps: int
+            Number of time iterations
+    :param dt: float
+            Time step of each iteration
+    :param params: tuple
+            parameters of the system for derivation function
+    :return: xyzs: ndarray, shape (num_steps + 1, 3)
+            Array of (x, y, z) values at each time step
+    """
+    xyzs = np.empty((num_steps + 1, 3))
+    xyzs[0] = Initial_Conditions
+
+    # Euler integration loop
+    for i in range(num_steps):
+        xyzs[i + 1] = xyzs[i] + Deriv_Func(xyzs[i], *params) * dt
+
+    return xyzs
+
+
+def Lorenz(Integration_Func, xyz, *, s, r, b, dt, num_steps):
     """
     Simulate and plot the Lorenz attractor.
 
-    Parameters
-    ----------
-    xyz: array-like, shape (3,)
-        Initial condition for the Lorenz system [x0, y0, z0].
-    s: float, optional
-        Parameter of the Rossler system.
-    r: float, optional
-        Parameter of the Rossler system.
-    b: float, optional
-        Parameter of the Rossler system.
-    dt: float, optional
-        Time step for the simulation.
-    num_steps: int, optional
-        Number of steps for the simulation.
+    param xyz: array-like, shape (3,)
+            Initial condition for the Lorenz system [x0, y0, z0].
+    param s: float, optional
+            Parameter of the Lorenz system.
+    param r: float, optional
+            Parameter of the Lorenz system.
+    param b: float, optional
+            Parameter of the Lorenz system.
+    param dt: float, optional
+            Time step for the simulation.
+    param num_steps: int, optional
+            Number of steps for the simulation.
     """
+
     def Lorenz_derivatives(xyz, s, r, b):
         x, y, z = xyz
         x_dot = s * (y - x)
@@ -28,14 +53,8 @@ def Lorenz(xyz, *, s, r, b, dt, num_steps):
         z_dot = x * y - b * z
         return np.array([x_dot, y_dot, z_dot])
 
-    # Initialize an array to store the results
-    xyzs = np.empty((num_steps + 1, 3))
-    xyzs[0] = xyz  # Set initial values
-
-    # Step through "time", calculating the partial derivatives at the current point
-    # and using them to estimate the next point
-    for i in range(num_steps):
-        xyzs[i + 1] = xyzs[i] + Lorenz_derivatives(xyzs[i], s, r, b) * dt
+    if Integration_Func == "Euler":
+        xyzs = Euler_Method(Lorenz_derivatives, xyz, num_steps, dt, s, r, b)
 
     # Plot the result
     fig = plt.figure()
@@ -47,23 +66,24 @@ def Lorenz(xyz, *, s, r, b, dt, num_steps):
     ax.set_title(f"Lorenz Attractor (s={s}, r={r}, b={b})")
     plt.show()
 
-def Rossler(xyz, *, a, b, c, dt, num_steps):
-    """
-    Simulate and plot the Rossler attractor.
 
-    Parameters
-    ----------
-    xyz: array-like, shape (3,)
-        Initial condition for the Rossler system [x0, y0, z0].
-    a: float, optional
-        Parameter of the Rossler system.
-    b: float, optional
-        Parameter of the Rossler system.
-    c: float, optional
-        Parameter of the Rossler system.
-    dt: float, optional
-        Time step for the simulation.
-    num_steps: int, optional
+def Rossler(Integration_Func, xyz, *, a, b, c, dt, num_steps):
+    """
+    Simulate and plot the Rossler attractor
+
+    :param Integration_Func: String
+            Integration method
+    :param xyz: array-like, shape (3,)
+            Initial condition for the Rossler system [x0, y0, z0].
+    :param a: float, optional
+            Parameter of the Rossler system.
+    :param b: float, optional
+            Parameter of the Rossler system.
+    :param c: float, optional
+            Parameter of the Rossler system.
+    :param dt: float, optional
+            Time step for the simulation.
+    :param num_steps: int, optional
         Number of steps for the simulation.
     """
 
@@ -74,14 +94,8 @@ def Rossler(xyz, *, a, b, c, dt, num_steps):
         z_dot = b + z * (x - c)
         return np.array([x_dot, y_dot, z_dot])
 
-    # Initialize an array to store the results
-    xyzs = np.empty((num_steps + 1, 3))
-    xyzs[0] = xyz  # Set initial values
-
-    # Step through "time", calculating the partial derivatives at the current point
-    # and using them to estimate the next point
-    for i in range(num_steps):
-        xyzs[i + 1] = xyzs[i] + Rossler_derivatives(xyzs[i], a, b, c) * dt
+    if Integration_Func == "Euler":
+        xyzs = Euler_Method(Rossler_derivatives, xyz, num_steps, dt, a, b, c)
 
     # Plot the result
     fig = plt.figure()
@@ -94,10 +108,10 @@ def Rossler(xyz, *, a, b, c, dt, num_steps):
     plt.show()
 
 
-#Lorenz example from wiki - parameters s=10, r=28, b=2.667
-#Lorenz([0., 1., 1.05], s=10, r=28, b=2.667, dt=0.01, num_steps=10000)
+# Lorenz example from wiki - parameters s=10, r=28, b=2.667
+# Lorenz("Euler", [0., 1., 1.05], s=10, r=28, b=2.667, dt=0.01, num_steps=10000)
 
-#Rossler example from wiki - parameters a=0.2, b=0.2, c=5.7
-#Rossler([0., 1., 1.05], a=0.2, b=0.2, c=5.7, dt=0.01, num_steps=10000)
-Rossler([0., 1., 1.05], a=0.1, b=0.1, c=14, dt=0.01, num_steps=10000)
+# Rossler example from wiki - paparameters a=0.2, b=0.2, c=5.7
+# Rossler("Euler", [0., 1., 1.05], a=0.2, b=0.2, c=5.7, dt=0.01, num_steps=10000)
+Rossler("Euler", [0., 1., 1.05], a=0.1, b=0.1, c=14, dt=0.01, num_steps=10000)
 
