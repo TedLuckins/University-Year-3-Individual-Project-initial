@@ -57,56 +57,41 @@ def Runge_Kutta_Method(Deriv_Func, Initial_Conditions, num_steps, dt, *params):
 
     return xyzs
 
-
-def Lorenz(Integration_Func, xyz, *, s, r, b, dt, num_steps):
+def Plot_Attractor(xyzs, title):
     """
-    Simulate and plot the Lorenz attractor.
-
-    param xyz: array-like, shape (3,)
-            Initial condition for the Lorenz system [x0, y0, z0].
-    param s: float, optional
-            Parameter of the Lorenz system.
-    param r: float, optional
-            Parameter of the Lorenz system.
-    param b: float, optional
-            Parameter of the Lorenz system.
-    param dt: float, optional
-            Time step for the simulation.
-    param num_steps: int, optional
-            Number of steps for the simulation.
+    A plotting function for attractors
     """
-
-    def Lorenz_derivatives(xyz, s, r, b):
-        x, y, z = xyz
-        x_dot = s * (y - x)
-        y_dot = r * x - y - x * z
-        z_dot = x * y - b * z
-        return np.array([x_dot, y_dot, z_dot])
-
-    if Integration_Func == "Euler":
-        xyzs = Euler_Method(Lorenz_derivatives, xyz, num_steps, dt, s, r, b)
-
-    if Integration_Func == "Runge-Kutta":
-        xyzs = Runge_Kutta_Method(Lorenz_derivatives, xyz, num_steps, dt, s, r, b)
-
-
-    # Plot the result
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.plot(*xyzs.T, lw=0.6)
     ax.set_xlabel("X Axis")
     ax.set_ylabel("Y Axis")
     ax.set_zlabel("Z Axis")
-    ax.set_title(f"Lorenz Attractor (s={s}, r={r}, b={b})")
+    ax.set_title(title)
     plt.show()
 
-
-def Rossler(Integration_Func, xyz, *, a, b, c, dt, num_steps):
+def Lorenz_Derivatives(xyz, s, r, b):
     """
-    Simulate and plot the Rossler attractor
+    Computes the Lorenz attractor derivatives
 
-    :param Integration_Func: String
-            Integration method
+    :param xyz: array-like, shape (3,)
+            Initial condition for the Lorenz system [x0, y0, z0].
+    :param s: float, optional
+            Parameter of the Lorenz system.
+    :param r: float, optional
+            Parameter of the Lorenz system.
+    :param b: float, optional
+    """
+    x, y, z = xyz
+    x_dot = s * (y - x)
+    y_dot = r * x - y - x * z
+    z_dot = x * y - b * z
+    return np.array([x_dot, y_dot, z_dot])
+
+def Rossler_Derivatives(xyz, a, b, c):
+    """
+    Computes the Rossler attractor derivatives
+
     :param xyz: array-like, shape (3,)
             Initial condition for the Rossler system [x0, y0, z0].
     :param a: float, optional
@@ -115,42 +100,79 @@ def Rossler(Integration_Func, xyz, *, a, b, c, dt, num_steps):
             Parameter of the Rossler system.
     :param c: float, optional
             Parameter of the Rossler system.
-    :param dt: float, optional
-            Time step for the simulation.
-    :param num_steps: int, optional
-        Number of steps for the simulation.
     """
+    x, y, z = xyz
+    x_dot = -y - z
+    y_dot = x + a * y
+    z_dot = b + z * (x - c)
+    return np.array([x_dot, y_dot, z_dot])
 
-    def Rossler_derivatives(xyz, a, b, c):
-        x, y, z = xyz
-        x_dot = -y - z
-        y_dot = x + a * y
-        z_dot = b + z * (x - c)
-        return np.array([x_dot, y_dot, z_dot])
+#Hash Map
+Integration_Methods = {
+    "Euler" : Euler_Method,
+    "Runge-Kutta" : Runge_Kutta_Method
+}
 
-    if Integration_Func == "Euler":
-        xyzs = Euler_Method(Rossler_derivatives, xyz, num_steps, dt, a, b, c)
+def Simulate_Attractor(Integration_Func, Derivative_Func, Initial_Conditions, params, dt, num_steps, title):
+    """
+   Simulate and plot the attractor.
+    """
+    #Calls specified functions and methods
+    xyzs = Integration_Func(Derivative_Func, Initial_Conditions, num_steps, dt, *params)
+    #Plot results
+    Plot_Attractor(xyzs, title)
 
-    if Integration_Func == "Runge-Kutta":
-        xyzs = Runge_Kutta_Method(Rossler_derivatives, xyz, num_steps, dt, a, b, c)
 
-    # Plot the result
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    ax.plot(*xyzs.T, lw=0.6)
-    ax.set_xlabel("X Axis")
-    ax.set_ylabel("Y Axis")
-    ax.set_zlabel("Z Axis")
-    ax.set_title(f"Rössler Attractor (a={a}, b={b}, c={c})")
-    plt.show()
 
 
 # Lorenz example from wiki - parameters s=10, r=28, b=2.667
-# Lorenz("Euler", [0., 1., 1.05], s=10, r=28, b=2.667, dt=0.01, num_steps=10000)
-# Lorenz("Runge-Kutta", [0., 1., 1.05], s=10, r=28, b=2.667, dt=0.01, num_steps=10000)
+"""
+Simulate_Attractor(
+    Integration_Methods["Euler"],
+    Lorenz_Derivatives,
+    [0., 1., 1.05],
+    (10, 28, 2.667),
+    dt=0.01,
+    num_steps=10000,
+    title="Lorenz Attractor (Euler)"
+)
+"""
+"""
+Simulate_Attractor(
+    Integration_Methods["Runge-Kutta"],
+    Lorenz_Derivatives, 
+    [0., 1., 1.05], 
+    (10, 28, 2.667), 
+    dt=0.01, 
+    num_steps=10000,
+    title="Lorenz Attractor (Runge_Kutta)"
+)
+"""
 
 # Rossler example from wiki - paparameters a=0.2, b=0.2, c=5.7
+
 # Rossler("Euler", [0., 1., 1.05], a=0.2, b=0.2, c=5.7, dt=0.01, num_steps=10000)
-Rossler("Euler", [0., 1., 1.05], a=0.1, b=0.1, c=14, dt=0.01, num_steps=10000)
-Rossler("Runge-Kutta", [0., 1., 1.05], a=0.1, b=0.1, c=14, dt=0.01, num_steps=10000)
+"""
+Simulate_Attractor(
+    Integration_Methods["Euler"],
+    Rossler_Derivatives,
+    [0., 1., 1.05],
+    (0.1, 0.1, 14),
+    dt=0.01,
+    num_steps=10000,
+    title="Rossler Attractor (Euler)"
+)
+"""
+"""
+Simulate_Attractor(
+    Integration_Methods["Runge-Kutta"],
+    Rossler_Derivatives, 
+    [0., 1., 1.05], 
+    (0.1, 0.1, 14), 
+    dt=0.01, 
+    num_steps=10000,
+    title="Rossler Attractor (Runge_Kutta)"
+)
+"""
+
 
