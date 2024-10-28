@@ -107,7 +107,7 @@ def Rossler_Derivatives(xyz, a, b, c):
     z_dot = b + z * (x - c)
     return np.array([x_dot, y_dot, z_dot])
 
-#Hash Map
+#Dictionary
 Integration_Methods = {
     "Euler" : Euler_Method,
     "Runge-Kutta" : Runge_Kutta_Method
